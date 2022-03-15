@@ -1,0 +1,38 @@
+trigger: 
+  - main
+
+pool:
+ vmImage: "windows-latest"
+
+stages:
+- stage: terraform
+  jobs:
+  - job: terraform
+    steps:
+    - checkout: self
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
+
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+        backendServiceArm: 'Microsoft Partner Network(55cf0ba9-e3c1-4ced-b5e9-5abb7b4d39b1)'
+        backendAzureRmResourceGroupName: 'priti_rg_group'
+        backendAzureRmStorageAccountName: 'pritistorageaccount'
+        backendAzureRmContainerName: 'terrafile'
+        backendAzureRmKey: 'terrafile.tfstate'
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+        environmentServiceNameAzureRM: 'Microsoft Partner Network(55cf0ba9-e3c1-4ced-b5e9-5abb7b4d39b1)'
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+        environmentServiceNameAzureRM: 'Microsoft Partner Network(55cf0ba9-e3c1-4ced-b5e9-5abb7b4d39b1)'
